@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "env": {
+    "DATABASE_URL": "postgresql://neondb_owner:npg_MRGrncfYVZ75@ep-dawn-fire-ap13vfou.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require"
+  }
+}
