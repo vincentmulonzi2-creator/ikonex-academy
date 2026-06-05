@@ -11,6 +11,9 @@ interface Student {
   email: string
   phone: string
   address: string
+  totalMarks?: number
+  averageScore?: number
+  scoresCount?: number
   classStream: { id: string; name: string }
 }
 
@@ -50,10 +53,26 @@ export default function StudentsPage() {
     }
   }
 
+  const getAverageColor = (average: number) => {
+    if (average >= 80) return 'text-green-600'
+    if (average >= 70) return 'text-blue-600'
+    if (average >= 60) return 'text-yellow-600'
+    if (average >= 50) return 'text-orange-600'
+    return 'text-red-600'
+  }
+
+  const getGradeLetter = (average: number) => {
+    if (average >= 80) return 'A'
+    if (average >= 70) return 'B'
+    if (average >= 60) return 'C'
+    if (average >= 50) return 'D'
+    return 'F'
+  }
+
   if (loading) return (
     <div className="min-h-screen bg-gray-100">
       <Navigation />
-      <div className="text-center py-8">Loading...</div>
+      <div className="text-center py-8">Loading students...</div>
     </div>
   )
 
@@ -79,49 +98,73 @@ export default function StudentsPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Class</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Marks</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Average</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Grade</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {students.map((student) => (
-                  <tr key={student.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {student.admissionNo}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {student.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.email || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.phone || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.classStream?.name || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <Link
-                        href={`/students/${student.id}`}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        View
-                      </Link>
-                      <Link
-                        href={`/students/${student.id}/edit`}
-                        className="text-green-600 hover:text-green-900"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(student.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {students.map((student) => {
+                  const avg = student.averageScore || 0
+                  const avgColor = getAverageColor(avg)
+                  const grade = getGradeLetter(avg)
+                  
+                  return (
+                    <tr key={student.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {student.admissionNo}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {student.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {student.email || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {student.phone || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {student.classStream?.name || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-purple-600">
+                        {student.totalMarks || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className={`font-semibold ${avgColor}`}>
+                          {avg > 0 ? `${avg}%` : '-'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {avg > 0 ? (
+                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${avgColor} bg-gray-100`}>
+                            {grade}
+                          </span>
+                        ) : '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <Link
+                          href={`/students/${student.id}`}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          View
+                        </Link>
+                        <Link
+                          href={`/students/${student.id}/edit`}
+                          className="text-green-600 hover:text-green-900"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(student.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

@@ -12,6 +12,8 @@ interface Student {
   email: string
   phone: string
   address: string
+  averageScore?: number
+  totalMarks?: number
 }
 
 interface Subject {
@@ -46,11 +48,13 @@ export default function ClassDetailsPage() {
   const [showSubjectForm, setShowSubjectForm] = useState(false)
   const [selectedSubjectId, setSelectedSubjectId] = useState('')
   const [assignedSubjects, setAssignedSubjects] = useState<ClassSubject[]>([])
+  const [studentsWithScores, setStudentsWithScores] = useState<Student[]>([])
 
   useEffect(() => {
     fetchClassDetails()
     fetchAllSubjects()
     fetchAssignedSubjects()
+    fetchStudentsWithScores()
   }, [])
 
   const fetchClassDetails = async () => {
@@ -63,11 +67,22 @@ export default function ClassDetailsPage() {
     }
   }
 
+  const fetchStudentsWithScores = async () => {
+    try {
+      const res = await fetch(`/api/students?classId=${params.id}`)
+      const data = await res.json()
+      // Sort by average score (highest first) for ranking
+      const sorted = [...data].sort((a, b) => (b.averageScore || 0) - (a.averageScore || 0))
+      setStudentsWithScores(sorted)
+    } catch (error) {
+      console.error('Error fetching students with scores:', error)
+    }
+  }
+
   const fetchAssignedSubjects = async () => {
     try {
       const res = await fetch(`/api/classes/${params.id}/subjects`)
       const data = await res.json()
-      console.log('Assigned subjects:', data)
       setAssignedSubjects(data)
     } catch (error) {
       console.error('Error fetching assigned subjects:', error)
@@ -134,6 +149,20 @@ export default function ClassDetailsPage() {
     }
   }
 
+  const getRankDisplay = (index: number) => {
+    if (index === 0) return '🥇 1st'
+    if (index === 1) return '🥈 2nd'
+    if (index === 2) return '🥉 3rd'
+    return `${index + 1}th`
+  }
+
+  const getRankStyle = (index: number) => {
+    if (index === 0) return 'bg-yellow-50'
+    if (index === 1) return 'bg-gray-50'
+    if (index === 2) return 'bg-amber-50'
+    return ''
+  }
+
   if (loading && !classData) {
     return (
       <div className="min-h-screen bg-gray-100">
@@ -159,7 +188,7 @@ export default function ClassDetailsPage() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Navigation />
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <button onClick={() => router.back()} className="mb-4 text-blue-600 hover:text-blue-800">
           ← Back
         </button>
@@ -264,16 +293,18 @@ export default function ClassDetailsPage() {
           )}
         </div>
 
-        {/* Students List */}
+        {/* Students List with Rankings */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-4 border-b">
-            <h2 className="text-xl font-bold">👨‍🎓 Students</h2>
+            <h2 className="text-xl font-bold">👨‍🎓 Students - Class Rankings</h2>
+            <p className="text-sm text-gray-500 mt-1">Students ranked by overall performance</p>
           </div>
           {classData.students && classData.students.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="p-3 text-left">Rank</th>
                     <th className="p-3 text-left">Admission No</th>
                     <th className="p-3 text-left">Name</th>
                     <th className="p-3 text-left">Email</th>
@@ -282,8 +313,12 @@ export default function ClassDetailsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {classData.students.map((student) => (
-                    <tr key={student.id} className="border-t hover:bg-gray-50">
+                  {/* Sort students by average score (using studentsWithScores or fallback to original order) */}
+                  {(studentsWithScores.length > 0 ? studentsWithScores : classData.students).map((student, index) => (
+                    <tr key={student.id} className={`border-t hover:bg-gray-50 ${getRankStyle(index)}`}>
+                      <td className="p-3 font-bold">
+                        {getRankDisplay(index)}
+                      </td>
                       <td className="p-3">{student.admissionNo}</td>
                       <td className="p-3 font-medium">{student.name}</td>
                       <td className="p-3">{student.email || '-'}</td>

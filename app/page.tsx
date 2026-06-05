@@ -8,8 +8,11 @@ export default function Dashboard() {
   const [stats, setStats] = useState({
     students: 0,
     classes: 0,
-    subjects: 0
+    subjects: 0,
+    totalMarks: 0,
+    averageScore: 0
   })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchStats()
@@ -17,22 +20,52 @@ export default function Dashboard() {
 
   const fetchStats = async () => {
     try {
-      const studentsRes = await fetch('/api/students')
-      const classesRes = await fetch('/api/classes')
-      const subjectsRes = await fetch('/api/subjects')
+      const [studentsRes, classesRes, subjectsRes] = await Promise.all([
+        fetch('/api/students'),
+        fetch('/api/classes'),
+        fetch('/api/subjects')
+      ])
       
       const students = await studentsRes.json()
       const classes = await classesRes.json()
       const subjects = await subjectsRes.json()
       
+      // Calculate total marks across all students
+      let totalMarksSum = 0
+      let totalScoresCount = 0
+      
+      students.forEach((student: any) => {
+        if (student.totalMarks) {
+          totalMarksSum += student.totalMarks
+        }
+        if (student.scores) {
+          totalScoresCount += student.scores.length
+        }
+      })
+      
+      const averageScore = totalScoresCount > 0 ? totalMarksSum / totalScoresCount : 0
+      
       setStats({
-        students: students.length,
-        classes: classes.length,
-        subjects: subjects.length
+        students: Array.isArray(students) ? students.length : 0,
+        classes: Array.isArray(classes) ? classes.length : 0,
+        subjects: Array.isArray(subjects) ? subjects.length : 0,
+        totalMarks: totalMarksSum,
+        averageScore: parseFloat(averageScore.toFixed(2))
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <Navigation />
+        <div className="text-center py-8">Loading dashboard...</div>
+      </div>
+    )
   }
 
   return (
@@ -42,7 +75,7 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold mb-6">Dashboard Overview</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-medium text-gray-900">Total Students</h3>
             <p className="text-3xl font-bold text-blue-600 mt-2">{stats.students}</p>
@@ -54,6 +87,14 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-medium text-gray-900">Subjects</h3>
             <p className="text-3xl font-bold text-purple-600 mt-2">{stats.subjects}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-medium text-gray-900">Total Marks</h3>
+            <p className="text-3xl font-bold text-orange-600 mt-2">{stats.totalMarks}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-medium text-gray-900">Avg Score</h3>
+            <p className="text-3xl font-bold text-red-600 mt-2">{stats.averageScore}%</p>
           </div>
         </div>
 

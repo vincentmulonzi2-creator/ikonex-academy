@@ -24,6 +24,8 @@ interface Student {
   email: string
   phone: string
   address: string
+  totalMarks?: number
+  averageScore?: number
   classStream: {
     id: string
     name: string
@@ -95,6 +97,12 @@ export default function StudentProfilePage() {
     return total / filtered.length
   }
 
+  const getTotalMarks = () => {
+    const filtered = getFilteredScores()
+    if (filtered.length === 0) return 0
+    return filtered.reduce((sum, s) => sum + s.marks, 0)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100">
@@ -114,6 +122,7 @@ export default function StudentProfilePage() {
   }
 
   const overallAverage = getOverallAverage()
+  const totalMarks = getTotalMarks()
   const overallGrade = getGrade(overallAverage)
   const uniqueSubjects = getUniqueSubjects()
   const terms = ['All', 'Term 1', 'Term 2', 'Term 3']
@@ -127,10 +136,20 @@ export default function StudentProfilePage() {
           ← Back
         </button>
 
-        {/* Student Header */}
+        {/* Student Header with Download Button */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h1 className="text-2xl font-bold">{student.name}</h1>
-          <p className="text-gray-500">Admission No: {student.admissionNo}</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-bold">{student.name}</h1>
+              <p className="text-gray-500">Admission No: {student.admissionNo}</p>
+            </div>
+            <Link
+              href={`/reports/student/${student.id}`}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            >
+              <span>📄</span> Download Report Card
+            </Link>
+          </div>
           
           <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
@@ -154,6 +173,26 @@ export default function StudentProfilePage() {
           </div>
         </div>
 
+        {/* Academic Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <p className="text-gray-500 text-sm">Total Marks</p>
+            <p className="text-2xl font-bold text-purple-600">{totalMarks}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <p className="text-gray-500 text-sm">Overall Average</p>
+            <p className={`text-2xl font-bold ${overallGrade.color}`}>{overallAverage.toFixed(2)}%</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <p className="text-gray-500 text-sm">Overall Grade</p>
+            <p className={`text-2xl font-bold ${overallGrade.color}`}>{overallGrade.letter}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <p className="text-gray-500 text-sm">Subjects Taken</p>
+            <p className="text-2xl font-bold text-blue-600">{uniqueSubjects.length}</p>
+          </div>
+        </div>
+
         {/* Term Filter */}
         <div className="bg-white rounded-lg shadow mb-6 p-4">
           <div className="flex gap-4 items-center">
@@ -167,9 +206,6 @@ export default function StudentProfilePage() {
                 <option key={term} value={term}>{term}</option>
               ))}
             </select>
-            <span className="text-gray-500 text-sm">
-              Overall Average: <span className={`font-bold ${overallGrade.color}`}>{overallAverage.toFixed(2)}%</span>
-            </span>
           </div>
         </div>
 
@@ -196,7 +232,7 @@ export default function StudentProfilePage() {
                     const grade = getGrade(avg)
                     return (
                       <tr key={subject.id} className="border-t">
-                        <td className="p-3">{subject.name}</td>
+                        <td className="p-3 font-medium">{subject.name}</td>
                         <td className="p-3 font-semibold">{avg.toFixed(2)}%</td>
                         <td className="p-3">
                           <span className={`px-2 py-1 rounded text-sm ${grade.bg} ${grade.color}`}>
@@ -240,7 +276,7 @@ export default function StudentProfilePage() {
                     const grade = getGrade(score.marks)
                     return (
                       <tr key={score.id} className="border-t">
-                        <td className="p-3">{score.subject?.name}</td>
+                        <td className="p-3 font-medium">{score.subject?.name}</td>
                         <td className="p-3">{score.assessmentType}</td>
                         <td className="p-3 font-semibold">{score.marks}%</td>
                         <td className="p-3">
@@ -249,7 +285,7 @@ export default function StudentProfilePage() {
                           </span>
                         </td>
                         <td className="p-3">{score.academicTerm}</td>
-                      </tr>
+                       </tr>
                     )
                   })}
                 </tbody>

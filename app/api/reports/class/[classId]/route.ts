@@ -3,58 +3,54 @@ import prisma from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { classId: string } }
+  { params }: { params: Promise<{ classId: string }> }
 ) {
   try {
-    console.log('=== Generating Report for Class ID:', params.classId)
+    const { classId } = await params
     
     // Get all students in the class with their scores
     const students = await prisma.student.findMany({
-      where: { 
-        classStreamId: params.classId 
-      },
+      where: { classStreamId: classId },
       include: {
-        scores: true
+        scores: {
+          include: { subject: true }
+        }
       }
     })
     
-    console.log('Found students:', students.length)
-    
-    if (students.length === 0) {
-      return NextResponse.json([])
-    }
-    
-    // Calculate performance for each student
+    // Calculate overall performance for each student
     const classPerformance = students.map(student => {
-      let totalMarks = 0
-      let scoreCount = student.scores.length
-      
-      student.scores.forEach(score => {
-        totalMarks += score.marks
-      })
-      
-      const averageScore = scoreCount > 0 ? totalMarks / scoreCount : 0
-      
-      console.log(`${student.name}: ${scoreCount} scores, Total: ${totalMarks}, Avg: ${averageScore}`)
+      const totalMarks = student.scores.reduce((sum, s) => sum + s.marks, 0)
+      const averageScore = student.scores.length > 0 ? totalMarks / student.scores.length : 0
       
       return {
         studentId: student.id,
         name: student.name,
         admissionNo: student.admissionNo,
-        totalMarks: totalMarks,
-        averageScore: averageScore,
+        totalMarks,
+        averageScore: parseFloat(averageScore.toFixed(2)),
       }
     })
     
-    // Sort by average score (highest first)
-    const rankedPerformance = classPerformance.sort((a, b) => b.averageScore - a.averageScore)
-    
-    console.log('Final report:', rankedPerformance)
+    // Sort by average score (highest first) and assign overall positions
+    const rankedPerformance = classPerformance
+      .sort((a, b) => b.averageScore - a.averageScore)
+      .map((student, index) => ({
+        ...student,
+        overallPosition: index + 1,
+        overallRank: getRankText(index + 1)
+      }))
     
     return NextResponse.json(rankedPerformance)
-    
   } catch (error) {
     console.error('Error generating report:', error)
     return NextResponse.json({ error: 'Failed to generate report' }, { status: 500 })
   }
+}
+
+function getRankText(position: number): string {
+  if (position === 1) return '🥇 1st'
+  if (position === 2) return '🥈 2nd'
+  if (position === 3) return '🥉 3rd'
+  return `${position}th`
 }

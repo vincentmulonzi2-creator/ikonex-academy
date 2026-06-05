@@ -24,6 +24,8 @@ export default function Navigation() {
               <Link href="/scores" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Scores</Link>
               <Link href="/scores/record" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Record</Link>
               <Link href="/reports" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Reports</Link>
+              <Link href="/rankings" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Rankings</Link>
+              <Link href="/grade-scales" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Grading</Link>
             </div>
           </div>
           
@@ -47,6 +49,8 @@ export default function Navigation() {
           <Link href="/scores" className="px-3 py-1 rounded hover:bg-blue-600">Scores</Link>
           <Link href="/scores/record" className="px-3 py-1 rounded hover:bg-blue-600">Record</Link>
           <Link href="/reports" className="px-3 py-1 rounded hover:bg-blue-600">Reports</Link>
+          <Link href="/rankings" className="px-3 py-1 rounded hover:bg-blue-600">Rankings</Link>
+          <Link href="/grade-scales" className="px-3 py-1 rounded hover:bg-blue-600">Grading</Link>
         </div>
       </div>
     </nav>
