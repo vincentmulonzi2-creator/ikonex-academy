@@ -1,6 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
+// GET - Fetch single class with students
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    
+    const classStream = await prisma.classStream.findUnique({
+      where: { id },
+      include: {
+        students: true
+      }
+    })
+    
+    if (!classStream) {
+      return NextResponse.json({ error: 'Class not found' }, { status: 404 })
+    }
+    
+    return NextResponse.json(classStream)
+  } catch (error) {
+    console.error('Error fetching class:', error)
+    return NextResponse.json({ error: 'Failed to fetch class' }, { status: 500 })
+  }
+}
+
+// PUT - Update class
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const body = await request.json()
+    const { name, code, academicYear } = body
+    
+    const classStream = await prisma.classStream.update({
+      where: { id },
+      data: { 
+        name, 
+        code, 
+        academicYear 
+      }
+    })
+    
+    return NextResponse.json(classStream)
+  } catch (error) {
+    console.error('Error updating class:', error)
+    return NextResponse.json({ error: 'Failed to update class' }, { status: 500 })
+  }
+}
+
+// DELETE - Delete class and related data
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

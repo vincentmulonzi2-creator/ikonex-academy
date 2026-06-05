@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import Navigation from '@/app/components/Navigation'
 
 interface Subject {
@@ -8,6 +9,7 @@ interface Subject {
   name: string
   code: string
   description: string
+  createdAt: string
 }
 
 export default function SubjectsPage() {
@@ -143,30 +145,63 @@ export default function SubjectsPage() {
         )}
 
         <div className="bg-white shadow overflow-hidden rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {subjects.map((subject) => (
-                <tr key={subject.id}>
-                  <td className="px-6 py-4 text-sm text-gray-900">{subject.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{subject.code}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{subject.description}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <button onClick={() => handleDelete(subject.id)} className="text-red-600 hover:text-red-900">
-                      Delete
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-        </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {subjects.map((subject) => (
+                  <tr key={subject.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {subject.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {subject.code}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                      {subject.description || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(subject.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm space-x-3">
+                      <Link
+                        href={`/subjects/${subject.id}`}
+                        className="text-blue-600 hover:text-blue-900 font-medium"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        href={`/subjects/${subject.id}/edit`}
+                        className="text-green-600 hover:text-green-900 font-medium"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(subject.id)}
+                        className="text-red-600 hover:text-red-900 font-medium"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {subjects.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No subjects found. Click "+ Add New Subject" to get started.
+            </div>
+          )}
         </div>
       </div>
     </div>

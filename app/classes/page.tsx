@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import Navigation from '@/app/components/Navigation'
 
 interface ClassStream {
@@ -167,8 +168,23 @@ export default function ClassesPage() {
                   <td className="px-6 py-4 text-sm text-gray-500">{cls.code}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{cls.academicYear}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{cls.students?.length || 0}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <button onClick={() => handleDelete(cls.id)} className="text-red-600 hover:text-red-900">
+                  <td className="px-6 py-4 text-sm space-x-2">
+                    <Link 
+                      href={`/classes/${cls.id}`} 
+                      className="text-blue-600 hover:text-blue-900"
+                    >
+                      View
+                    </Link>
+                    <Link 
+                      href={`/classes/${cls.id}/edit`} 
+                      className="text-green-600 hover:text-green-900"
+                    >
+                      Edit
+                    </Link>
+                    <button 
+                      onClick={() => handleDelete(cls.id)} 
+                      className="text-red-600 hover:text-red-900"
+                    >
                       Delete
                     </button>
                   </td>

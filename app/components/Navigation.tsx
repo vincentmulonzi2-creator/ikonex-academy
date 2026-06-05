@@ -21,7 +21,8 @@ export default function Navigation() {
               <Link href="/classes" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Classes</Link>
               <Link href="/students" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Students</Link>
               <Link href="/subjects" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Subjects</Link>
-              <Link href="/scores/record" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Record Scores</Link>
+              <Link href="/scores" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Scores</Link>
+              <Link href="/scores/record" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Record</Link>
               <Link href="/reports" className="px-3 py-2 rounded-lg hover:bg-blue-700 transition">Reports</Link>
             </div>
           </div>
@@ -43,7 +44,8 @@ export default function Navigation() {
           <Link href="/classes" className="px-3 py-1 rounded hover:bg-blue-600">Classes</Link>
           <Link href="/students" className="px-3 py-1 rounded hover:bg-blue-600">Students</Link>
           <Link href="/subjects" className="px-3 py-1 rounded hover:bg-blue-600">Subjects</Link>
-          <Link href="/scores/record" className="px-3 py-1 rounded hover:bg-blue-600">Scores</Link>
+          <Link href="/scores" className="px-3 py-1 rounded hover:bg-blue-600">Scores</Link>
+          <Link href="/scores/record" className="px-3 py-1 rounded hover:bg-blue-600">Record</Link>
           <Link href="/reports" className="px-3 py-1 rounded hover:bg-blue-600">Reports</Link>
         </div>
       </div>

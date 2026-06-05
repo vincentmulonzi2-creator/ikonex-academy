@@ -13,6 +13,7 @@ model ClassStream {
   code      String    @unique
   academicYear String  @default("2026")
   students  Student[]
+  subjects  ClassSubject[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -36,8 +37,19 @@ model Subject {
   name      String    @unique
   code      String    @unique
   description String?
+  classes   ClassSubject[]
   scores    Score[]
   createdAt DateTime  @default(now())
+}
+
+model ClassSubject {
+  id        String      @id @default(cuid())
+  classId   String
+  subjectId String
+  class     ClassStream @relation(fields: [classId], references: [id])
+  subject   Subject     @relation(fields: [subjectId], references: [id])
+
+  @@unique([classId, subjectId])
 }
 
 model Score {
