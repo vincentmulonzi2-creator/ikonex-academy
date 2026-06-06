@@ -29,7 +29,14 @@ export default function ClassReportPDFPage() {
       // Calculate summary statistics
       const totalStudents = data.length
       const totalMarks = data.reduce((sum: number, s: any) => sum + s.totalMarks, 0)
-      const classAverage = totalStudents > 0 ? totalMarks / totalStudents : 0
+      
+      // Calculate class average (average of averages, not total marks)
+      let averageSum = 0
+      data.forEach((s: any) => {
+        averageSum += s.averageScore
+      })
+      const classAverage = data.length > 0 ? averageSum / data.length : 0
+      
       const passCount = data.filter((s: any) => s.averageScore >= 50).length
       const failCount = totalStudents - passCount
       const passRate = totalStudents > 0 ? (passCount / totalStudents) * 100 : 0

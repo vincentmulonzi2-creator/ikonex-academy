@@ -6,7 +6,7 @@ export async function GET() {
     const students = await prisma.student.findMany({
       include: {
         classStream: true,
-        scores: true
+        scores: true  // Include scores to calculate averages
       }
     })
     
@@ -15,6 +15,7 @@ export async function GET() {
       const totalMarks = student.scores.reduce((sum, score) => sum + score.marks, 0)
       const averageScore = student.scores.length > 0 ? totalMarks / student.scores.length : 0
       
+      // Remove scores from response to keep it clean
       const { scores, ...studentWithoutScores } = student
       
       return {

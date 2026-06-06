@@ -30,20 +30,23 @@ export default function Dashboard() {
       const classes = await classesRes.json()
       const subjects = await subjectsRes.json()
       
-      // Calculate total marks across all students
+      // Calculate total marks and average across all students
       let totalMarksSum = 0
-      let totalScoresCount = 0
+      let totalAverageSum = 0
+      let studentsWithScores = 0
       
       students.forEach((student: any) => {
         if (student.totalMarks) {
           totalMarksSum += student.totalMarks
         }
-        if (student.scores) {
-          totalScoresCount += student.scores.length
+        // Use averageScore directly from student data
+        if (student.averageScore && student.averageScore > 0) {
+          totalAverageSum += student.averageScore
+          studentsWithScores++
         }
       })
       
-      const averageScore = totalScoresCount > 0 ? totalMarksSum / totalScoresCount : 0
+      const averageScore = studentsWithScores > 0 ? totalAverageSum / studentsWithScores : 0
       
       setStats({
         students: Array.isArray(students) ? students.length : 0,
@@ -93,7 +96,7 @@ export default function Dashboard() {
             <p className="text-3xl font-bold text-orange-600 mt-2">{stats.totalMarks}</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-gray-900">Avg Score</h3>
+            <h3 className="text-lg font-medium text-gray-900">Average Score</h3>
             <p className="text-3xl font-bold text-red-600 mt-2">{stats.averageScore}%</p>
           </div>
         </div>
